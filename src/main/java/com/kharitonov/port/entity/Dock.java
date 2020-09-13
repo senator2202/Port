@@ -20,11 +20,26 @@ public class Dock {
                 : Optional.of(ship);
     }
 
+    public void setShip(Ship ship) {
+        this.ship = ship;
+    }
+
     public void removeShip() {
         ship = null;
     }
 
-    public void setShip(Ship ship) {
-        this.ship = ship;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Dock dock = (Dock) o;
+
+        return dockId == dock.dockId;
+    }
+
+    @Override
+    public int hashCode() {
+        return dockId;
     }
 }

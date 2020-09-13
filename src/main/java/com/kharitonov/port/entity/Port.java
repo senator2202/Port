@@ -4,10 +4,10 @@ import com.kharitonov.port.exception.ResourceException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import javax.print.Doc;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
 public class Port {
@@ -17,14 +17,14 @@ public class Port {
     private static final Port INSTANCE = new Port();
     private final Semaphore dockSemaphore = new Semaphore(DOCKS_NUMBER, true);
     private List<CargoContainer> warehouse = new ArrayList<>();
-    private List<Dock> freeDocks;
+    private Queue<Dock> freeDocks;
     private List<Dock> usedDocks;
 
     private Port() {
-        usedDocks = new ArrayList<>();
-        freeDocks = new ArrayList<>();
+        //usedDocks = new ArrayList<>();
+        freeDocks = new LinkedList<>();
         for (int i = 0; i < DOCKS_NUMBER; i++) {
-            freeDocks.add(new Dock(i+1));
+            freeDocks.add(new Dock(i + 1));
         }
     }
 
@@ -40,35 +40,43 @@ public class Port {
         public Dock requestDock(Ship ship) throws ResourceException {
             Dock dock;
             try {
-                LOGGER.info("Ship № {} is requesting a dock.", ship.getShipId());
+                LOGGER.info("Ship № {} is requesting a semaphore, {} semaphores available",
+                        ship.getShipId(), dockSemaphore.availablePermits());
                 dockSemaphore.acquire();
+                LOGGER.info("Ship № {} got semaphore, {} semaphores available",
+                        ship.getShipId(), dockSemaphore.availablePermits());
             } catch (InterruptedException e) {
                 throw new ResourceException(e);
             }
-            dock = freeDocks.remove(0);
+            dock = freeDocks.poll();
+            //usedDocks.add(dock);
             dock.setShip(ship);
-            usedDocks.add(dock);
-            LOGGER.info("Ship № " + ship.getShipId() + " got dock № " + dock.getDockId());
+            LOGGER.info("Ship № {} got dock № {}, {} semaphores available",
+                    ship.getShipId(), dock.getDockId(), freeDocks.size());
             return dock;
         }
 
-        public void requestLeaving(Ship ship) {
-            synchronized (usedDocks) {
-                for (Dock dock : usedDocks) {
-                    if (dock.getShip().get().getId() == ship.getId()) {
-                        releaseDock(dock);
-                    }
+        public void requestLeaving(Dock dock) {
+            int shipId = dock.getShip().get().getShipId();
+            freeDocks.offer(dock);
+            dockSemaphore.release();
+            LOGGER.info("Ship № {} left dock № {}, {} semaphores available",
+                    shipId, dock.getDockId(), dockSemaphore.availablePermits());
+            /*for (int i = 0; i < usedDocks.size(); i++) {
+                Dock dock = usedDocks.get(i);
+                if (dock.getShip().get().getShipId() == ship.getShipId()) {
+                    releaseDock(i);
+                    break;
                 }
-            }
+            }*/
         }
-        public void releaseDock(Dock dock) {
-            if (usedDocks.remove(dock)) {
-                Ship ship = dock.getShip().get();
-                dock.removeShip();
-                freeDocks.add(dock);
-                LOGGER.info("Ship № " + ship.getId() + " went from dock № " + dock.getDockId());
-                dockSemaphore.release();
-            }
+
+        public void releaseDock(int index) {
+            Dock dock = usedDocks.remove(index);
+            Ship ship = dock.getShip().get();
+            dock.removeShip();
+            LOGGER.info("Ship № " + ship.getShipId() + " went from dock № " + dock.getDockId());
+            dockSemaphore.release();
         }
     }
 }
