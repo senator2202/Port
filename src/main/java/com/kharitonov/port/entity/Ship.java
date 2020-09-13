@@ -3,12 +3,11 @@ package com.kharitonov.port.entity;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class Ship implements Serializable {
+public class Ship {
     private static final Logger LOGGER = LogManager.getLogger(Ship.class);
     private int shipId;
     private int capacity;

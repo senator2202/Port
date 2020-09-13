@@ -1,32 +1,40 @@
 package com.kharitonov.port.generator;
 
 import com.kharitonov.port.entity.CargoContainer;
+import com.kharitonov.port.entity.DockRequest;
 import com.kharitonov.port.entity.Ship;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class DockRequestGenerator{
     private static final Logger LOGGER =
             LogManager.getLogger(DockRequestGenerator.class);
-    private static final String HOST = "localhost";
-    private static final int SOCKET = 3333;
 
-    public void generateRequest(Ship ship) {
-        try (Socket clientSocket = new Socket(HOST, SOCKET);
-             ObjectOutputStream oos =
-                     new ObjectOutputStream(clientSocket.getOutputStream());
-             ObjectInputStream ois =
-                     new ObjectInputStream(clientSocket.getInputStream())) {
-            oos.writeObject(ship);
-            int dockId = ois.readInt();
-            ship.setDockId(dockId);
-        } catch (IOException e) {
-            LOGGER.error(e);
+    public void generateRequests() {
+        for (int i = 1; i < 30; i++) {
+            DockRequest request;
+            Ship ship = new Ship(i, 20);
+            ship.loadContainer(new CargoContainer(1 * i, 100));
+            ship.loadContainer(new CargoContainer(2 * i, 100));
+            ship.loadContainer(new CargoContainer(3 * i, 200));
+            request = new DockRequest(ship);
+            try {
+                long duration = (long) new Random().nextInt(2) + 1;
+                TimeUnit.SECONDS.sleep(duration);
+            } catch (InterruptedException e) {
+                LOGGER.error(e);
+            }
+            request.start();
+        }
+        while (Thread.activeCount() > 2) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.error(e);
+            }
         }
     }
 }
