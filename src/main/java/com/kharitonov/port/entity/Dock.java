@@ -3,7 +3,7 @@ package com.kharitonov.port.entity;
 import java.util.Optional;
 
 public class Dock {
-    private int dockId;
+    private final int dockId;
     private Ship ship;
 
     public Dock(int dockId) {
@@ -30,11 +30,13 @@ public class Dock {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Dock dock = (Dock) o;
-
         return dockId == dock.dockId;
     }
 

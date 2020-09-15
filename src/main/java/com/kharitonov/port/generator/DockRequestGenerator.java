@@ -1,37 +1,35 @@
 package com.kharitonov.port.generator;
 
-import com.kharitonov.port.entity.CargoContainer;
-import com.kharitonov.port.entity.DockRequest;
 import com.kharitonov.port.entity.Ship;
+import com.kharitonov.port.manager.ShipManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-public class DockRequestGenerator{
+public class DockRequestGenerator {
     private static final Logger LOGGER =
             LogManager.getLogger(DockRequestGenerator.class);
+    private static final int DURATION = 2;
+    private static final long MIN_DURATION = 1;
+    private static final int NORMAL_THREAD_COUNT = 2;
 
-    public void generateRequests() {
-        for (int i = 1; i < 30; i++) {
-            DockRequest request;
-            Ship ship = new Ship(i, 20);
-            ship.loadContainer(new CargoContainer(1 * i, 100));
-            ship.loadContainer(new CargoContainer(2 * i, 100));
-            ship.loadContainer(new CargoContainer(3 * i, 200));
-            request = new DockRequest(ship);
+    public void generateRequests(List<Ship> ships) {
+        for (Ship ship : ships) {
+            ShipManager manager = new ShipManager(ship);
             try {
-                long duration = (long) new Random().nextInt(2) + 1;
+                long duration = new Random().nextInt(DURATION) + MIN_DURATION;
                 TimeUnit.SECONDS.sleep(duration);
             } catch (InterruptedException e) {
                 LOGGER.error(e);
             }
-            request.start();
+            manager.start();
         }
-        while (Thread.activeCount() > 2) {
+        while (Thread.activeCount() > NORMAL_THREAD_COUNT) {
             try {
-                Thread.sleep(1000);
+                TimeUnit.SECONDS.sleep(DURATION);
             } catch (InterruptedException e) {
                 LOGGER.error(e);
             }

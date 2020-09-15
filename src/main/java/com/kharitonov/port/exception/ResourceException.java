@@ -13,6 +13,6 @@ public class ResourceException extends Exception {
     }
 
     public ResourceException(Throwable cause) {
-         super(cause);
+        super(cause);
     }
 }

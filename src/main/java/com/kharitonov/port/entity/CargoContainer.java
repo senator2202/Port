@@ -1,8 +1,8 @@
 package com.kharitonov.port.entity;
 
 public class CargoContainer {
-    private int containerId;
-    private double weight;
+    private final int containerId;
+    private final double weight;
 
     public CargoContainer(int containerId, double weight) {
         this.containerId = containerId;

@@ -1,5 +1,7 @@
 package com.kharitonov.port.entity;
 
+import com.kharitonov.port.state.AbstractState;
+import com.kharitonov.port.state.ArrivingState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,14 +11,31 @@ import java.util.Optional;
 
 public class Ship {
     private static final Logger LOGGER = LogManager.getLogger(Ship.class);
-    private int shipId;
-    private int capacity;
+    private final int shipId;
+    private final int capacity;
+    private AbstractState state;
     private int dockId = -1;
     private List<CargoContainer> containers = new ArrayList<>();
 
     public Ship(int shipId, int capacity) {
         this.shipId = shipId;
         this.capacity = capacity;
+        state = new ArrivingState(this);
+    }
+
+    public Ship(int shipId, int capacity, List<CargoContainer> containers) {
+        this.shipId = shipId;
+        this.capacity = capacity;
+        this.containers = containers;
+        state = new ArrivingState(this);
+    }
+
+    public AbstractState getState() {
+        return state;
+    }
+
+    public void setState(AbstractState state) {
+        this.state = state;
     }
 
     public int getShipId() {
@@ -35,52 +54,46 @@ public class Ship {
         this.dockId = dockId;
     }
 
-    /*@Override
-    public void run() {
-        LOGGER.info("Ship {} started.", shipId);
-        Port port = Port.getInstance();
-        Port.PortDispatcher dispatcher = port.getDispatcher();
-        Random random = new Random();
-        try {
-            Dock dock = dispatcher.requestDock(this);
-            Thread.sleep(1000 * (random.nextInt(10) + 2));
-        } catch (InterruptedException | ResourceException e) {
-            LOGGER.error(e);
-        }
-        dispatcher.requestLeaving(this);
-    }*/
-
-    public boolean loadContainer(CargoContainer container) {
-        boolean result;
-        if (containers.size() < capacity) {
-            containers.add(container);
-            result = true;
-        } else {
-            LOGGER.warn("Unable to load cargo container, ship is full!");
-            result = false;
-        }
-        return result;
+    public int getSize() {
+        return containers.size();
     }
 
-    public Optional<CargoContainer> unloadContainer() {
-        Optional<CargoContainer> optional = Optional.empty();
-        if (!containers.isEmpty()) {
-            optional = Optional.of(containers.remove(0));
+    public void loadContainer(CargoContainer container) {
+        if (containers.size() < capacity) {
+            containers.add(container);
+        } else {
+            LOGGER.warn("Unable to load cargo container, ship is full!");
         }
-        return optional;
+    }
+
+    public Optional<CargoContainer> unloadContainer(int index) {
+        CargoContainer container = containers.remove(index);
+        return container == null
+                ? Optional.empty()
+                : Optional.of(container);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Ship ship = (Ship) o;
-
-        if (shipId != ship.shipId) return false;
-        if (capacity != ship.capacity) return false;
-        if (dockId != ship.dockId) return false;
-        return containers != null ? containers.equals(ship.containers) : ship.containers == null;
+        if (shipId != ship.shipId) {
+            return false;
+        }
+        if (capacity != ship.capacity) {
+            return false;
+        }
+        if (dockId != ship.dockId) {
+            return false;
+        }
+        return containers != null
+                ? containers.equals(ship.containers)
+                : ship.containers == null;
     }
 
     @Override
