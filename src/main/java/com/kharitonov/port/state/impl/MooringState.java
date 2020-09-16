@@ -12,7 +12,8 @@ public class MooringState implements AbstractState {
     private static final Logger LOGGER = LogManager.getLogger(MooringState.class);
     private static final int MOORING_DURATION = 4;
 
-    private MooringState() {}
+    private MooringState() {
+    }
 
     public static MooringState getInstance() {
         return INSTANCE;

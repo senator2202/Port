@@ -15,7 +15,8 @@ public class LeavingState implements AbstractState {
     private static final SeaPort PORT = SeaPort.getInstance();
     private static final int LEAVING_DURATION = 4;
 
-    private LeavingState() {}
+    private LeavingState() {
+    }
 
     public static LeavingState getInstance() {
         return INSTANCE;

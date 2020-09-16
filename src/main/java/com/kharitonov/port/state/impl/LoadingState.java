@@ -17,7 +17,8 @@ public class LoadingState implements AbstractState {
     private static final int LOAD_NUMBER = 5;
     private static final int LOAD_DURATION = 1;
 
-    private LoadingState() {}
+    private LoadingState() {
+    }
 
     public static LoadingState getInstance() {
         return INSTANCE;

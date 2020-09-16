@@ -14,7 +14,6 @@ public class ArrivingState implements AbstractState {
             SeaPort.getInstance().getDispatcher();
 
     private ArrivingState() {
-
     }
 
     public static ArrivingState getInstance() {
