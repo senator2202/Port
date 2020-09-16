@@ -37,11 +37,16 @@ public class Dock {
             return false;
         }
         Dock dock = (Dock) o;
-        return dockId == dock.dockId;
+        if (dockId != dock.dockId) {
+            return false;
+        }
+        return ship != null ? ship.equals(dock.ship) : dock.ship == null;
     }
 
     @Override
     public int hashCode() {
-        return dockId;
+        int result = dockId;
+        result = 31 * result + (ship != null ? ship.hashCode() : 0);
+        return result;
     }
 }

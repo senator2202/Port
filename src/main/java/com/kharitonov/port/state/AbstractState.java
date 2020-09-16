@@ -2,21 +2,14 @@ package com.kharitonov.port.state;
 
 import com.kharitonov.port.entity.Ship;
 
-public abstract class AbstractState {
-    protected final Ship ship;
+public interface AbstractState {
+    void requestDock(Ship ship);
 
-    protected AbstractState(Ship ship) {
-        this.ship = ship;
-    }
+    void moorToDock(Ship ship);
 
-    public abstract void loadContainers();
+    void unloadContainers(Ship ship);
 
-    public abstract void unloadContainers();
+    void loadContainers(Ship ship);
 
-    public abstract void requestDock();
-
-    public abstract void leaveDock();
-
-    public abstract void moorToDock();
-
+    void leaveDock(Ship ship);
 }

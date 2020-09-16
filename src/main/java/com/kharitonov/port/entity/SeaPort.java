@@ -6,25 +6,27 @@ import org.apache.logging.log4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class SeaPort {
     private static final Logger LOGGER = LogManager.getLogger(SeaPort.class);
     private static final SeaPort INSTANCE = new SeaPort();
+    private static final Warehouse WAREHOUSE = Warehouse.getInstance();
     private static final int DOCKS_NUMBER = 3;
-    private static final int WAREHOUSE_CAPACITY = 40;
+    private final PortDispatcher dispatcher = new PortDispatcher();
     private final Semaphore dockSemaphore = new Semaphore(DOCKS_NUMBER, true);
-    private final List<Dock> allDocks;
+    private final Lock warehouseLock = new ReentrantLock();
     private final Queue<Dock> freeDocks;
-    private final List<CargoContainer> warehouse;
+    private final List<Dock> usedDocks;
+
 
     private SeaPort() {
-        warehouse = new ArrayList<>();
         freeDocks = new LinkedList<>();
-        allDocks = new ArrayList<>();
+        usedDocks = new ArrayList<>();
         for (int i = 1; i <= DOCKS_NUMBER; i++) {
             Dock dock = new Dock(i);
             freeDocks.add(dock);
-            allDocks.add(dock);
         }
     }
 
@@ -33,31 +35,28 @@ public class SeaPort {
     }
 
     public PortDispatcher getDispatcher() {
-        return new PortDispatcher();
+        return dispatcher;
     }
 
     public Optional<CargoContainer> getContainer() {
-        Optional<CargoContainer> optional = Optional.empty();
-        if (!warehouse.isEmpty()) {
-            optional = Optional.of(warehouse.remove(0));
-        }
+        warehouseLock.lock();
+        Optional<CargoContainer> optional = WAREHOUSE.getContainer();
+        warehouseLock.unlock();
         return optional;
     }
 
     public void addContainer(CargoContainer container) {
-        if (warehouse.size() < WAREHOUSE_CAPACITY) {
-            warehouse.add(container);
-        } else {
-            LOGGER.warn("Unable to add cargo container, warehouse is full!");
-        }
+        warehouseLock.lock();
+        WAREHOUSE.addContainer(container);
+        warehouseLock.unlock();
     }
 
     public int warehouseSize() {
-        return warehouse.size();
+        return WAREHOUSE.size();
     }
 
-    public Dock getDock(int dockId) {
-        return allDocks.stream().filter(d -> d.getDockId() == dockId).findFirst().get();
+    public Dock getUsingDock(int dockId) {
+        return usedDocks.stream().filter(d -> d.getDockId() == dockId).findFirst().get();
     }
 
     public class PortDispatcher {
@@ -72,6 +71,7 @@ public class SeaPort {
                 throw new ResourceException(e);
             }
             dock = freeDocks.poll();
+            usedDocks.add(dock);
             dock.setShip(ship);
             ship.setDockId(dock.getDockId());
             LOGGER.info("Ship № {} got a dock № {}, {} docks available, {} ships in queue",
@@ -81,10 +81,18 @@ public class SeaPort {
         }
 
         public void leaveDock(Dock dock) {
-            int shipId = dock.getShip().get().getShipId();
-            freeDocks.offer(dock);
-            LOGGER.info("Ship № {} left dock № {}", shipId, dock.getDockId());
-            dockSemaphore.release();
+            Optional<Ship> optionalShip = dock.getShip();
+            if (optionalShip.isPresent()) {
+                Ship ship = optionalShip.get();
+                int shipId = ship.getShipId();
+                dock.removeShip();
+                ship.resetDockId();
+                if (usedDocks.remove(dock)) {
+                    freeDocks.offer(dock);
+                    LOGGER.info("Ship № {} left dock № {}", shipId, dock.getDockId());
+                    dockSemaphore.release();
+                }
+            }
         }
     }
 }

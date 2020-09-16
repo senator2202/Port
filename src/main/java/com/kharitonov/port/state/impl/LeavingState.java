@@ -1,42 +1,46 @@
-package com.kharitonov.port.state;
+package com.kharitonov.port.state.impl;
 
 import com.kharitonov.port.entity.Dock;
 import com.kharitonov.port.entity.SeaPort;
 import com.kharitonov.port.entity.Ship;
+import com.kharitonov.port.state.AbstractState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
 
-public class LeavingState extends AbstractState {
+public class LeavingState implements AbstractState {
+    private static final LeavingState INSTANCE = new LeavingState();
     private static final Logger LOGGER = LogManager.getLogger(LeavingState.class);
     private static final SeaPort PORT = SeaPort.getInstance();
     private static final int LEAVING_DURATION = 4;
 
-    public LeavingState(Ship ship) {
-        super(ship);
+    private LeavingState() {}
+
+    public static LeavingState getInstance() {
+        return INSTANCE;
     }
 
     @Override
-    public void loadContainers() {
-        LOGGER.error("Invalid action, ship {} is in leaving state!", ship.getShipId());
+    public void loadContainers(Ship ship) {
+        LOGGER.warn("Invalid action, ship {} is in leaving state!", ship.getShipId());
     }
 
     @Override
-    public void unloadContainers() {
-        LOGGER.error("Invalid action, ship {} is in leaving state!", ship.getShipId());
+    public void unloadContainers(Ship ship) {
+        LOGGER.warn("Invalid action, ship {} is in leaving state!", ship.getShipId());
     }
 
     @Override
-    public void requestDock() {
-        LOGGER.error("Invalid action, ship {} is in leaving state!", ship.getShipId());
+    public void requestDock(Ship ship) {
+        LOGGER.warn("Invalid action, ship {} is in leaving state!", ship.getShipId());
     }
 
     @Override
-    public void leaveDock() {
+    public void leaveDock(Ship ship) {
         LOGGER.info("Ship {} is leaving dock № {}", ship.getShipId(), ship.getDockId());
         SeaPort.PortDispatcher dispatcher = PORT.getDispatcher();
-        Dock dock = PORT.getDock(ship.getDockId());
+        Dock dock = PORT.getUsingDock(ship.getDockId());
         try {
             TimeUnit.SECONDS.sleep(LEAVING_DURATION);
         } catch (InterruptedException e) {
@@ -47,7 +51,7 @@ public class LeavingState extends AbstractState {
     }
 
     @Override
-    public void moorToDock() {
-        LOGGER.error("Invalid action, ship {} is in leaving state!", ship.getShipId());
+    public void moorToDock(Ship ship) {
+        LOGGER.warn("Invalid action, ship {} is in leaving state!", ship.getShipId());
     }
 }

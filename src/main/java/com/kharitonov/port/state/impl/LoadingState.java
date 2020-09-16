@@ -1,26 +1,30 @@
-package com.kharitonov.port.state;
+package com.kharitonov.port.state.impl;
 
 import com.kharitonov.port.entity.CargoContainer;
 import com.kharitonov.port.entity.SeaPort;
 import com.kharitonov.port.entity.Ship;
+import com.kharitonov.port.state.AbstractState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-public class LoadingState extends AbstractState {
+public class LoadingState implements AbstractState {
+    private static final LoadingState INSTANCE = new LoadingState();
     private static final Logger LOGGER = LogManager.getLogger(LoadingState.class);
     private static final SeaPort PORT = SeaPort.getInstance();
     private static final int LOAD_NUMBER = 5;
     private static final int LOAD_DURATION = 1;
 
-    public LoadingState(Ship ship) {
-        super(ship);
+    private LoadingState() {}
+
+    public static LoadingState getInstance() {
+        return INSTANCE;
     }
 
     @Override
-    public void loadContainers() {
+    public void loadContainers(Ship ship) {
         for (int i = 0; i < LOAD_NUMBER; i++) {
             Optional<CargoContainer> optional = PORT.getContainer();
             if (optional.isPresent()) {
@@ -35,11 +39,11 @@ public class LoadingState extends AbstractState {
                 }
             }
         }
-        ship.setState(new LeavingState(ship));
+        ship.setCurrentState(LeavingState.getInstance());
     }
 
     @Override
-    public void unloadContainers() {
+    public void unloadContainers(Ship ship) {
         while (ship.getSize() != 0) {
             Optional<CargoContainer> optional = ship.unloadContainer(0);
             if (optional.isPresent()) {
@@ -57,17 +61,17 @@ public class LoadingState extends AbstractState {
     }
 
     @Override
-    public void requestDock() {
-        LOGGER.error("Dock was already requested!");
+    public void requestDock(Ship ship) {
+        LOGGER.warn("Dock was already requested!");
     }
 
     @Override
-    public void leaveDock() {
-        LOGGER.error("Invalid action, ship {} is in loading state!", ship.getShipId());
+    public void leaveDock(Ship ship) {
+        LOGGER.warn("Invalid action, ship {} is in loading state!", ship.getShipId());
     }
 
     @Override
-    public void moorToDock() {
-        LOGGER.error("Invalid action, ship {} is in loading state!", ship.getShipId());
+    public void moorToDock(Ship ship) {
+        LOGGER.warn("Invalid action, ship {} is in loading state!", ship.getShipId());
     }
 }

@@ -19,12 +19,16 @@ public class CargoContainer {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         CargoContainer that = (CargoContainer) o;
-
-        if (containerId != that.containerId) return false;
+        if (containerId != that.containerId) {
+            return false;
+        }
         return Double.compare(that.weight, weight) == 0;
     }
 
