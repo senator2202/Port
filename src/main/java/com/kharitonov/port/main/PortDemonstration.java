@@ -9,9 +9,11 @@ import com.kharitonov.port.reader.ProjectFileReader;
 import java.util.List;
 
 public class PortDemonstration {
+    private static final String FILE_PATH = "input\\ships.txt";
+
     public static void main(String[] args) throws ProjectFileReaderException {
         ProjectFileReader reader = new ProjectFileReader();
-        List<String> data = reader.read("input\\ships.txt");
+        List<String> data = reader.read(FILE_PATH);
         ShipParser parser = new ShipParser();
         List<Ship> ships = parser.parse(data);
         DockRequestGenerator generator = new DockRequestGenerator();
