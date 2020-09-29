@@ -1,7 +1,7 @@
 package com.kharitonov.port.entity;
 
-import com.kharitonov.port.state.AbstractState;
-import com.kharitonov.port.state.impl.ArrivingState;
+import com.kharitonov.port.entity.state.AbstractState;
+import com.kharitonov.port.entity.state.impl.ArrivingState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -119,5 +119,17 @@ public class Ship extends Thread {
         result = 31 * result + dockId;
         result = 31 * result + containers.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Ship{");
+        sb.append("shipId=").append(shipId);
+        sb.append(", capacity=").append(capacity);
+        sb.append(", currentState=").append(currentState);
+        sb.append(", dockId=").append(dockId);
+        sb.append(", containers=").append(containers);
+        sb.append('}');
+        return sb.toString();
     }
 }

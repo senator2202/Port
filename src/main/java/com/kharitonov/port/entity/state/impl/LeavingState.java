@@ -1,9 +1,8 @@
-package com.kharitonov.port.state.impl;
+package com.kharitonov.port.entity.state.impl;
 
-import com.kharitonov.port.entity.Dock;
 import com.kharitonov.port.entity.SeaPort;
 import com.kharitonov.port.entity.Ship;
-import com.kharitonov.port.state.AbstractState;
+import com.kharitonov.port.entity.state.AbstractState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -40,15 +39,14 @@ public class LeavingState implements AbstractState {
     @Override
     public void leaveDock(Ship ship) {
         LOGGER.info("Ship {} is leaving dock № {}", ship.getShipId(), ship.getDockId());
-        SeaPort.PortDispatcher dispatcher = PORT.getDispatcher();
-        Dock dock = PORT.getUsingDock(ship.getDockId());
+        int dockId = ship.getDockId();
         try {
             TimeUnit.SECONDS.sleep(LEAVING_DURATION);
         } catch (InterruptedException e) {
             LOGGER.error(e);
         }
         LOGGER.info("Ship {} has left dock № {}!", ship.getShipId(), ship.getDockId());
-        dispatcher.leaveDock(dock);
+        PORT.leaveDock(dockId);
     }
 
     @Override

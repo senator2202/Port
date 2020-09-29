@@ -1,4 +1,4 @@
-package com.kharitonov.port.state;
+package com.kharitonov.port.entity.state;
 
 import com.kharitonov.port.entity.Ship;
 

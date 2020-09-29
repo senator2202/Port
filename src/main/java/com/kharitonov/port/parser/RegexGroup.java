@@ -7,6 +7,6 @@ class RegexGroup {
     public static final String CONTAINER_ID = "containerId";
     public static final String CONTAINER_WEIGHT = "containerWeight";
 
-    private RegexGroup(){
+    private RegexGroup() {
     }
 }

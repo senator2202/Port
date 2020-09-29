@@ -49,4 +49,13 @@ public class Dock {
         result = 31 * result + (ship != null ? ship.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Dock{");
+        sb.append("dockId=").append(dockId);
+        sb.append(", ship=").append(ship);
+        sb.append('}');
+        return sb.toString();
+    }
 }

@@ -1,7 +1,7 @@
-package com.kharitonov.port.state.impl;
+package com.kharitonov.port.entity.state.impl;
 
 import com.kharitonov.port.entity.Ship;
-import com.kharitonov.port.state.AbstractState;
+import com.kharitonov.port.entity.state.AbstractState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

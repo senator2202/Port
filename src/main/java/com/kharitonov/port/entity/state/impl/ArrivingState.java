@@ -1,17 +1,16 @@
-package com.kharitonov.port.state.impl;
+package com.kharitonov.port.entity.state.impl;
 
 import com.kharitonov.port.entity.SeaPort;
 import com.kharitonov.port.entity.Ship;
+import com.kharitonov.port.entity.state.AbstractState;
 import com.kharitonov.port.exception.ResourceException;
-import com.kharitonov.port.state.AbstractState;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ArrivingState implements AbstractState {
     private static final ArrivingState INSTANCE = new ArrivingState();
     private static final Logger LOGGER = LogManager.getLogger(ArrivingState.class);
-    private static final SeaPort.PortDispatcher DISPATCHER =
-            SeaPort.getInstance().getDispatcher();
+    private static final SeaPort PORT = SeaPort.getInstance();
 
     private ArrivingState() {
     }
@@ -33,7 +32,7 @@ public class ArrivingState implements AbstractState {
     @Override
     public void requestDock(Ship ship) {
         try {
-            DISPATCHER.requestDock(ship);
+            PORT.requestDock(ship);
         } catch (ResourceException e) {
             throw new RuntimeException("Unable to get dock!", e);
         }
